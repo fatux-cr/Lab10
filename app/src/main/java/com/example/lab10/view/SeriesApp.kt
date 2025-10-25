@@ -37,18 +37,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 @Composable
 fun SeriesApp() {
-    val urlBase = "http://10.0.2.2:8000/" // o tu IP si usarás un dispositivo externo
-    val retrofit = Retrofit.Builder().baseUrl(urlBase)
-        .addConverterFactory(GsonConverterFactory.create()).build()
+    val urlBase = "https://fakestoreapi.com/"
+    val retrofit = Retrofit.Builder()
+        .baseUrl(urlBase)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
     val servicio = retrofit.create(SerieApiService::class.java)
     val navController = rememberNavController()
 
     Scaffold(
-        modifier = Modifier.padding(top=40.dp),
-        topBar =    { BarraSuperior() },
+        modifier = Modifier.padding(top = 40.dp),
+        topBar = { BarraSuperior() },
         bottomBar = { BarraInferior(navController) },
         floatingActionButton = { BotonFAB(navController, servicio) },
-        content =   { paddingValues -> Contenido(paddingValues, navController, servicio) }
+        content = { paddingValues -> Contenido(paddingValues, navController, servicio) }
     )
 }
 
@@ -62,10 +64,7 @@ fun BotonFAB(navController: NavHostController, servicio: SerieApiService) {
             contentColor = Color.White,
             onClick = { navController.navigate("serieNuevo") }
         ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "Add"
-            )
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
         }
     }
 }
@@ -76,7 +75,7 @@ fun BarraSuperior() {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "SERIES APP",
+                text = "PRODUCTS APP",
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
@@ -89,9 +88,7 @@ fun BarraSuperior() {
 
 @Composable
 fun BarraInferior(navController: NavHostController) {
-    NavigationBar(
-        containerColor = Color.LightGray
-    ) {
+    NavigationBar(containerColor = Color.LightGray) {
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
@@ -99,8 +96,8 @@ fun BarraInferior(navController: NavHostController) {
             onClick = { navController.navigate("inicio") }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Outlined.Favorite, contentDescription = "Series") },
-            label = { Text("Series") },
+            icon = { Icon(Icons.Outlined.Favorite, contentDescription = "Productos") },
+            label = { Text("Productos") },
             selected = navController.currentDestination?.route == "series",
             onClick = { navController.navigate("series") }
         )
@@ -120,23 +117,26 @@ fun Contenido(
     ) {
         NavHost(
             navController = navController,
-            startDestination = "inicio" // Ruta de inicio
+            startDestination = "inicio"
         ) {
             composable("inicio") { ScreenInicio() }
             composable("series") { ContenidoSeriesListado(navController, servicio) }
             composable("serieNuevo") {
-                ContenidoSerieEditar(navController, servicio, 0 )
+                ContenidoSerieEditar(navController, servicio, 0)
             }
             composable("serieVer/{id}", arguments = listOf(
-                navArgument("id") { type = NavType.IntType} )
+                navArgument("id") { type = NavType.IntType })
             ) {
                 ContenidoSerieEditar(navController, servicio, it.arguments!!.getInt("id"))
             }
             composable("serieDel/{id}", arguments = listOf(
-                navArgument("id") { type = NavType.IntType} )
+                navArgument("id") { type = NavType.IntType })
             ) {
                 ContenidoSerieEliminar(navController, servicio, it.arguments!!.getInt("id"))
             }
         }
     }
 }
+
+@Composable
+fun ScreenInicio() {}

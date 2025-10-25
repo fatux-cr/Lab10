@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 data class SerieModel(
     @SerializedName("id")
-    var id:Int,
-    @SerializedName("name")
-    var name:String,
-    @SerializedName("release_date")
-    var release_date:String,
-    @SerializedName("rating")
-    var rating:Int,
+    var id: Int,
+    @SerializedName("title")
+    var name: String,
+    @SerializedName("description")
+    var release_date: String,
+    @SerializedName("price")
+    var rating: Double,
     @SerializedName("category")
-    var category:String
+    var category: String
 )

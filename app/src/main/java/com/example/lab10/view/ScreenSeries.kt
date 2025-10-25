@@ -37,14 +37,15 @@ import kotlinx.coroutines.delay
 @Composable
 fun ContenidoSeriesListado(navController: NavHostController, servicio: SerieApiService) {
     var listaSeries: SnapshotStateList<SerieModel> = remember { mutableStateListOf() }
+
     LaunchedEffect(Unit) {
         val listado = servicio.selectSeries()
         listado.forEach { listaSeries.add(it) }
     }
-    LazyColumn (
-    ){
+
+    LazyColumn {
         item {
-            Row (
+            Row(
                 modifier = Modifier.fillParentMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -55,50 +56,76 @@ fun ContenidoSeriesListado(navController: NavHostController, servicio: SerieApiS
                     modifier = Modifier.weight(0.1f)
                 )
                 Text(
-                    text = "SERIE",
+                    text = "PRODUCTO",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(0.7f)
                 )
                 Text(
-                    text = "Accion",
+                    text = "Acción",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(0.2f)
-                ) //, fontWeight = FontWeight.Bold)
+                )
             }
         }
+
         items(listaSeries) { item ->
             Row(
-                modifier = Modifier.padding(start=8.dp).fillParentMaxWidth(),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillParentMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "${item.id}", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier=Modifier.weight(0.1f))
-                Text(text = item.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier=Modifier.weight(0.6f))
+                Text(
+                    text = "${item.id}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.1f)
+                )
+                Text(
+                    text = item.name,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.6f)
+                )
                 IconButton(
                     onClick = {
                         navController.navigate("serieVer/${item.id}")
-                        Log.e("SERIE-VER","ID = ${item.id}")
+                        Log.e("PRODUCT-EDIT", "ID = ${item.id}")
                     },
                     Modifier.weight(0.1f)
                 ) {
-                    Icon(imageVector = Icons.Outlined.Edit, contentDescription = "Ver", modifier=Modifier.align(Alignment.CenterVertically))
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Editar",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                 }
                 IconButton(
                     onClick = {
                         navController.navigate("serieDel/${item.id}")
-                        Log.e("SERIE-DEL","ID = ${item.id}")
+                        Log.e("PRODUCT-DEL", "ID = ${item.id}")
                     },
                     Modifier.weight(0.1f)
                 ) {
-                    Icon(imageVector = Icons.Outlined.Delete, contentDescription = "Ver", modifier=Modifier.align(Alignment.CenterVertically))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Eliminar",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                 }
             }
         }
     }
 }
+
 @Composable
-fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiService, pid: Int = 0 ) {
+fun ContenidoSerieEditar(
+    navController: NavHostController,
+    servicio: SerieApiService,
+    pid: Int = 0
+) {
     var id by remember { mutableStateOf<Int>(pid) }
     var name by remember { mutableStateOf<String?>("") }
     var release_date by remember { mutableStateOf<String?>("") }
@@ -121,8 +148,7 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-    ){
-        // Spacer(Modifier.height(50.dp))
+    ) {
         TextField(
             value = id.toString(),
             onValueChange = { },
@@ -139,13 +165,13 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
         TextField(
             value = release_date!!,
             onValueChange = { release_date = it },
-            label = { Text("Release Date:") },
+            label = { Text("Description:") },
             singleLine = true
         )
         TextField(
             value = rating!!,
             onValueChange = { rating = it },
-            label = { Text("Rating:") },
+            label = { Text("Price:") },
             singleLine = true
         )
         TextField(
@@ -157,14 +183,21 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
         Button(
             onClick = {
                 grabar = true
-            }
+            },
+            modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Grabar", fontSize=16.sp)
+            Text("Grabar", fontSize = 16.sp)
         }
     }
 
     if (grabar) {
-        val objSerie = SerieModel(id,name!!, release_date!!, rating!!.toInt(), category!!)
+        val objSerie = SerieModel(
+            id,
+            name!!,
+            release_date!!,
+            rating!!.toDouble(),
+            category!!
+        )
         LaunchedEffect(Unit) {
             if (id == 0)
                 servicio.insertSerie(objSerie)
@@ -175,8 +208,13 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
         navController.navigate("series")
     }
 }
+
 @Composable
-fun ContenidoSerieEliminar(navController: NavHostController, servicio: SerieApiService, id: Int) {
+fun ContenidoSerieEliminar(
+    navController: NavHostController,
+    servicio: SerieApiService,
+    id: Int
+) {
     var showDialog by remember { mutableStateOf(true) }
     var borrar by remember { mutableStateOf(false) }
 
@@ -184,27 +222,30 @@ fun ContenidoSerieEliminar(navController: NavHostController, servicio: SerieApiS
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(text = "Confirmar Eliminación") },
-            text = {  Text("¿Está seguro de eliminar la Serie?") },
+            text = { Text("¿Está seguro de eliminar el producto?") },
             confirmButton = {
                 Button(
                     onClick = {
                         showDialog = false
                         borrar = true
-                    } ) {
+                    }
+                ) {
                     Text("Aceptar")
                 }
             },
             dismissButton = {
-                Button( onClick = { showDialog = false } ) {
-                    Text("Cancelar")
+                Button(onClick = {
+                    showDialog = false
                     navController.navigate("series")
+                }) {
+                    Text("Cancelar")
                 }
             }
         )
     }
+
     if (borrar) {
         LaunchedEffect(Unit) {
-            // val objSerie = servicio.selectSerie(id.toString())
             servicio.deleteSerie(id.toString())
             borrar = false
             navController.navigate("series")
